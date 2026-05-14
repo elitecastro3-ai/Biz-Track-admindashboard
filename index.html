@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizTrack — Business Dashboard App | CodeCanvas Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+  /* ─── DESIGN TOKENS ─────────────────────────────────── */
+  :root {
+    --ink:      #0C0E14;
+    --ink-lt:   #181C28;
+    --ink-mid:  #232839;
+    --panel:    #1A1E2D;
+    --card:     #20253A;
+    --edge:     rgba(255,255,255,0.07);
+    --edge-hi:  rgba(255,255,255,0.12);
+
+    --cyan:     #00D1C7;
+    --cyan-dim: rgba(0,209,199,0.12);
+    --cyan-glow:rgba(0,209,199,0.06);
+    --lime:     #A3E635;
+    --lime-dim: rgba(163,230,53,0.12);
+    --amber:    #FBBF24;
+    --amber-dim:rgba(251,191,36,0.12);
+    --rose:     #F43F5E;
+    --rose-dim: rgba(244,63,94,0.12);
+    --violet:   #818CF8;
+    --violet-dim:rgba(129,140,248,0.12);
+
+    --text:     #E8EAF0;
+    --muted:    #7B82A0;
+    --faint:    #424869;
+  }
+
+  /* ─── RESET ─────────────────────────────────────────── */
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ─── TYPOGRAPHY HELPERS ─────────────────────────────── */
+  .display {
+    font-family: 'Syne', sans-serif;
+    letter-spacing: -0.02em;
+  }
+  .mono {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  /* ─── ANIMATIONS ─────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(0,209,199,0.4); }
+    70%  { box-shadow: 0 0 0 10px rgba(0,209,199,0); }
+    100% { box-shadow: 0 0 0 0  rgba(0,209,199,0); }
+  }
+  @keyframes bar-grow {
+    from { transform: scaleX(0); transform-origin: left; }
+    to   { transform: scaleX(1); transform-origin: left; }
+  }
+  @keyframes count-in {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes scan {
+    0%   { top: 0%; }
+    50%  { top: 92%; }
+    100% { top: 0%; }
+  }
+
+  .fade-1 { animation: fadeUp 0.6s 0.05s ease both; }
+  .fade-2 { animation: fadeUp 0.6s 0.15s ease both; }
+  .fade-3 { animation: fadeUp 0.6s 0.25s ease both; }
+  .fade-4 { animation: fadeUp 0.6s 0.35s ease both; }
+  .fade-5 { animation: fadeUp 0.6s 0.45s ease both; }
+  .fade-6 { animation: fadeUp 0.6s 0.55s ease both; }
+
+  /* ─── NAV ────────────────────────────────────────────── */
+  .nav {
+    position: sticky;
+    top: 0; z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+    height: 64px;
+    background: rgba(12,14,20,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logomark {
+    width: 34px; height: 34px;
+    background: var(--cyan);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .nav-logomark::after {
+    content: '▲';
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 900;
+    transform: rotate(15deg);
+    display: block;
+  }
+
+  .nav-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .nav-wordmark span { color: var(--cyan); }
+
+  .nav-chip {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid rgba(0,209,199,0.3);
+    background: var(--cyan-dim);
+    padding: 5px 14px;
+    border-radius: 100px;
+  }
+
+  /* ─── HERO ───────────────────────────────────────────── */
+  .hero {
+    padding: 80px 6% 0;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 64px;
+    align-items: flex-start;
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+
+  .hero-left { padding-bottom: 80px; }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--cyan);
+  }
+
+  .hero-h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(48px, 6.5vw, 88px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+  }
+
+  .hero-h1 .c-cyan  { color: var(--cyan); }
+  .hero-h1 .c-muted { color: var(--muted); font-weight: 400; }
+
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 420px;
+    margin-bottom: 40px;
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--edge);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .hero-meta-item {
+    background: var(--panel);
+    padding: 18px 20px;
+    text-align: center;
+  }
+
+  .hmi-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .hmi-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--edge-hi);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── DASHBOARD MOCKUP ───────────────────────────────── */
+  .dashboard-wrap {
+    position: relative;
+    padding-bottom: 0;
+  }
+
+  .dashboard-chrome {
+    background: var(--ink-lt);
+    border-radius: 16px 16px 0 0;
+    border: 1px solid var(--edge-hi);
+    border-bottom: none;
+    overflow: hidden;
+    box-shadow:
+      0 -1px 0 0 rgba(255,255,255,0.06),
+      0 60px 120px rgba(0,0,0,0.6),
+      inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  /* Fake title bar */
+  .chrome-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .cd-red    { background: #FF5F57; }
+  .cd-amber  { background: #FEBC2E; }
+  .cd-green  { background: #28C840; }
+
+  .chrome-url {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Dashboard layout */
+  .db {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    height: 480px;
+    overflow: hidden;
+  }
+
+  /* Sidebar icons */
+  .db-sidebar {
+    background: rgba(0,0,0,0.3);
+    border-right: 1px solid var(--edge);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 6px;
+  }
+
+  .db-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    cursor: default;
+    color: var(--faint);
+    transition: all 0.2s;
+  }
+
+  .db-icon.active { background: var(--cyan-dim); color: var(--cyan); }
+  .db-icon:hover  { color: var(--text); }
+
+  /* Main content */
+  .db-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Topbar inside dashboard */
+  .db-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--edge);
+    flex-shrink: 0;
+  }
+
+  .db-page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .db-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .db-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--violet));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .db-date-chip {
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--ink-mid);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  /* Scrollable content area */
+  .db-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 20px;
+    scrollbar-width: none;
+  }
+
+  .db-content::-webkit-scrollbar { display: none; }
+
+  /* KPI cards row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  .kpi-label {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .kpi-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    animation: count-in 0.5s ease both;
+  }
+
+  .kpi-change {
+    font-size: 9px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .up   { color: var(--lime); }
+  .down { color: var(--rose); }
+
+  /* Charts row */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .cc-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .cc-sub {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* Bar chart inside dashboard */
+  .mini-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 90px;
+    padding-bottom: 4px;
+  }
+
+  .mini-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .mini-bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    animation: bar-grow 0.6s ease both;
+  }
+
+  .mini-bar-lbl {
+    font-size: 7px;
+    color: var(--faint);
+  }
+
+  /* Donut chart */
+  .donut-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Table */
+  .mini-table-card {
+    background: var(--card);
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .mt-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--edge);
+  }
+
+  .mt-title { font-size: 11px; font-weight: 600; color: var(--text); }
+  .mt-see   { font-size: 9px;  color: var(--cyan); }
+
+  .mt-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--edge);
+    gap: 10px;
+    transition: background 0.15s;
+  }
+
+  .mt-row:last-child { border-bottom: none; }
+  .mt-row:hover { background: rgba(255,255,255,0.02); }
+
+  .mt-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .mt-name   { font-size: 10px; font-weight: 600; flex: 1; }
+  .mt-val    { font-size: 10px; font-weight: 700; color: var(--text); }
+  .mt-badge  { font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+
+  .badge-p { background: var(--lime-dim);  color: var(--lime); }
+  .badge-w { background: var(--amber-dim); color: var(--amber); }
+  .badge-d { background: var(--rose-dim);  color: var(--rose); }
+
+  /* Scan line effect on dashboard */
+  .scan-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,209,199,0.15), transparent);
+    pointer-events: none;
+    animation: scan 6s linear infinite;
+  }
+
+  /* ─── GRADIENT FADE AT BOTTOM OF MOCKUP ─────────────── */
+  .dashboard-fade {
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--ink));
+    position: relative;
+    margin-top: -120px;
+    z-index: 2;
+  }
+
+  /* ─── SECTION COMMONS ────────────────────────────────── */
+  .section {
+    padding: 96px 6%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .section-full {
+    padding: 80px 6%;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .eyebrow::after {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: var(--cyan);
+    opacity: 0.4;
+  }
+
+  .section-h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin-bottom: 16px;
+  }
+
+  .section-h2 span { color: var(--cyan); }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 540px;
+    margin-bottom: 56px;
+  }
+
+  /* ─── FEATURES GRID ──────────────────────────────────── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--edge);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .feat {
+    background: var(--panel);
+    padding: 36px 32px;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--cyan);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s;
+  }
+
+  .feat:hover { background: var(--card); }
+  .feat:hover::before { transform: scaleX(1); }
+
+  .feat-icon {
+    width: 48px; height: 48px;
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .fi-c { background: var(--cyan-dim); }
+  .fi-l { background: var(--lime-dim); }
+  .fi-v { background: var(--violet-dim); }
+  .fi-a { background: var(--amber-dim); }
+  .fi-r { background: var(--rose-dim); }
+
+  .feat-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .feat-desc  { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  /* ─── SCREENS STRIP ──────────────────────────────────── */
+  .screens-section {
+    background: var(--ink-lt);
+    border-top: 1px solid var(--edge);
+    border-bottom: 1px solid var(--edge);
+    padding: 72px 6%;
+    overflow: hidden;
+  }
+
+  .screens-row {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .screen-pill {
+    background: var(--card);
+    border: 1px solid var(--edge);
+    border-radius: 14px;
+    padding: 20px;
+    min-width: 160px;
+    flex-shrink: 0;
+    transition: border-color 0.25s, transform 0.25s;
+    cursor: default;
+  }
+
+  .screen-pill:hover {
+    border-color: var(--edge-hi);
+    transform: translateY(-6px);
+  }
+
+  .sp-screen {
+    background: var(--panel);
+    border-radius: 8px;
+    height: 100px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .sp-bar {
+    height: 5px;
+    border-radius: 3px;
+    background: var(--edge-hi);
+  }
+
+  .sp-block {
+    flex: 1;
+    border-radius: 5px;
+    background: var(--edge);
+  }
+
+  .sp-name { font-size: 11px; font-weight: 700; color: var(--text); text-align: center; }
+  .sp-sub  { font-size: 9px;  color: var(--muted); text-align: center; margin-top: 2px; }
+
+  /* ─── TECH STACK ─────────────────────────────────────── */
+  .tech-section {
+    padding: 80px 6%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .tech-card {
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .tech-card:hover { border-color: var(--edge-hi); transform: translateY(-3px); }
+
+  .tc-emoji { font-size: 24px; margin-bottom: 8px; }
+  .tc-name  { font-size: 11px; font-weight: 700; color: var(--text); }
+  .tc-role  { font-size: 9px;  color: var(--muted); margin-top: 2px; }
+
+  /* ─── RESULTS BAND ───────────────────────────────────── */
+  .results-band {
+    background: var(--ink-lt);
+    border-top: 1px solid var(--edge);
+    padding: 0;
+  }
+
+  .results-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-left: 1px solid var(--edge);
+  }
+
+  .result-item {
+    padding: 56px 40px;
+    border-right: 1px solid var(--edge);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .ri-cyan::before   { background: var(--cyan); }
+  .ri-lime::before   { background: var(--lime); }
+  .ri-violet::before { background: var(--violet); }
+  .ri-amber::before  { background: var(--amber); }
+
+  .ri-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .ri-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ─── FOOTER ─────────────────────────────────────────── */
+  .footer {
+    border-top: 1px solid var(--edge);
+    padding: 44px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .footer-brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .footer-brand span { color: var(--cyan); }
+  .footer-meta { font-size: 12px; color: var(--muted); }
+  .footer-cc   { font-size: 11px; color: var(--faint); }
+
+  /* ─── RESPONSIVE ─────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero          { grid-template-columns: 1fr; }
+    .db            { grid-template-columns: 1fr; }
+    .db-sidebar    { display: none; }
+    .hero-meta     { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .results-inner { grid-template-columns: 1fr 1fr; }
+    .tech-section  { grid-template-columns: 1fr; }
+    .tech-grid     { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 580px) {
+    .kpi-row    { grid-template-columns: 1fr 1fr; }
+    .charts-row { grid-template-columns: 1fr; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logomark"></div>
+    <div class="nav-wordmark">Biz<span>Track</span></div>
+  </div>
+  <div class="nav-chip">App Development · 2026</div>
+</nav>
+
+<!-- ══ HERO ═════════════════════════════════════════════ -->
+<div style="max-width:1400px; margin:0 auto; overflow:hidden;">
+  <div class="hero">
+
+    <!-- Left: copy -->
+    <div class="hero-left">
+      <div class="hero-eyebrow fade-1">CodeCanvas Portfolio · Mobile App</div>
+
+      <h1 class="hero-title display fade-2">
+        Biz<span class="c-cyan">Track</span><br>
+        <span class="c-muted">Business</span><br>
+        Analytics
+      </h1>
+
+      <p class="hero-desc fade-3">
+        A full-featured business management app for Ugandan SMEs — combining real-time revenue tracking, expense management, staff oversight, and automated reporting in one sleek mobile dashboard.
+      </p>
+
+      <div class="hero-meta fade-4">
+        <div class="hero-meta-item">
+          <div class="hmi-val">Flutter</div>
+          <div class="hmi-label">Framework</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hmi-val">Android + iOS</div>
+          <div class="hmi-label">Platforms</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hmi-val">10 Weeks</div>
+          <div class="hmi-label">Timeline</div>
+        </div>
+      </div>
+
+      <div class="hero-tags fade-5">
+        <span class="tag">Flutter</span>
+        <span class="tag">Firebase</span>
+        <span class="tag">Analytics</span>
+        <span class="tag">Reporting</span>
+        <span class="tag">Mobile Money</span>
+        <span class="tag">Multi-user</span>
+      </div>
+    </div>
+
+    <!-- Right: Dashboard mockup -->
+    <div class="dashboard-wrap fade-6">
+      <div class="dashboard-chrome">
+
+        <!-- Browser chrome bar -->
+        <div class="chrome-bar">
+          <div class="chrome-dots" style="display:flex;gap:6px;">
+            <div class="chrome-dot cd-red"></div>
+            <div class="chrome-dot cd-amber"></div>
+            <div class="chrome-dot cd-green"></div>
+          </div>
+          <div class="chrome-url">biztrack.app · Dashboard</div>
+        </div>
+
+        <!-- Dashboard layout -->
+        <div class="db" style="position:relative;">
+          <div class="scan-line"></div>
+
+          <!-- Sidebar -->
+          <div class="db-sidebar">
+            <div class="db-icon active">📊</div>
+            <div class="db-icon">💰</div>
+            <div class="db-icon">👥</div>
+            <div class="db-icon">📦</div>
+            <div class="db-icon">🧾</div>
+            <div class="db-icon">⚙️</div>
+          </div>
+
+          <!-- Main area -->
+          <div class="db-main">
+
+            <!-- Top bar -->
+            <div class="db-topbar">
+              <div class="db-page-title">Analytics Overview</div>
+              <div class="db-topbar-right">
+                <div class="db-date-chip">May 2026</div>
+                <div class="db-avatar">DW</div>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="db-content">
+
+              <!-- KPI cards -->
+              <div class="kpi-row">
+                <div class="kpi-card">
+                  <div class="kpi-label">Revenue</div>
+                  <div class="kpi-val" style="color:var(--cyan);">UGX 8.4M</div>
+                  <div class="kpi-change up">↑ 18% vs last month</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Expenses</div>
+                  <div class="kpi-val" style="color:var(--rose);">UGX 3.1M</div>
+                  <div class="kpi-change down">↑ 5% vs last month</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Profit</div>
+                  <div class="kpi-val" style="color:var(--lime);">UGX 5.3M</div>
+                  <div class="kpi-change up">↑ 28% vs last month</div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-label">Invoices</div>
+                  <div class="kpi-val" style="color:var(--violet);">47</div>
+                  <div class="kpi-change up">↑ 12 this week</div>
+                </div>
+              </div>
+
+              <!-- Charts row -->
+              <div class="charts-row">
+                <!-- Bar chart -->
+                <div class="chart-card">
+                  <div class="cc-title">Monthly Revenue</div>
+                  <div class="cc-sub">Jan – Jun 2026</div>
+                  <div class="mini-bars">
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:40%;background:var(--cyan);opacity:0.5;animation-delay:0.05s;"></div>
+                      <div class="mini-bar-lbl">Jan</div>
+                    </div>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:55%;background:var(--cyan);opacity:0.6;animation-delay:0.1s;"></div>
+                      <div class="mini-bar-lbl">Feb</div>
+                    </div>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:48%;background:var(--cyan);opacity:0.65;animation-delay:0.15s;"></div>
+                      <div class="mini-bar-lbl">Mar</div>
+                    </div>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:70%;background:var(--cyan);opacity:0.75;animation-delay:0.2s;"></div>
+                      <div class="mini-bar-lbl">Apr</div>
+                    </div>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:62%;background:var(--cyan);opacity:0.8;animation-delay:0.25s;"></div>
+                      <div class="mini-bar-lbl">May</div>
+                    </div>
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" style="height:90%;background:var(--cyan);animation-delay:0.3s;"></div>
+                      <div class="mini-bar-lbl">Jun</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Donut -->
+                <div class="chart-card">
+                  <div class="cc-title">Expense Split</div>
+                  <div class="cc-sub">By category</div>
+                  <div class="donut-wrap">
+                    <svg width="72" height="72" viewBox="0 0 72 72">
+                      <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ink-mid)" stroke-width="10"/>
+                      <circle cx="36" cy="36" r="28" fill="none" stroke="var(--cyan)"   stroke-width="10" stroke-dasharray="70 106" stroke-dashoffset="44" />
+                      <circle cx="36" cy="36" r="28" fill="none" stroke="var(--violet)" stroke-width="10" stroke-dasharray="42 134" stroke-dashoffset="-26" />
+                      <circle cx="36" cy="36" r="28" fill="none" stroke="var(--amber)"  stroke-width="10" stroke-dasharray="28 148" stroke-dashoffset="-68" />
+                      <circle cx="36" cy="36" r="28" fill="none" stroke="var(--rose)"   stroke-width="10" stroke-dasharray="36 140" stroke-dashoffset="-96" />
+                      <text x="36" y="40" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700" font-family="Syne,sans-serif">UGX</text>
+                    </svg>
+                    <div style="width:100%;display:flex;flex-direction:column;gap:4px;">
+                      <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted);">
+                        <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;"></div>Salaries 40%
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted);">
+                        <div style="width:6px;height:6px;border-radius:50%;background:var(--violet);flex-shrink:0;"></div>Operations 24%
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted);">
+                        <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;"></div>Inventory 16%
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted);">
+                        <div style="width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;"></div>Rent 20%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent transactions -->
+              <div class="mini-table-card">
+                <div class="mt-head">
+                  <div class="mt-title">Recent Transactions</div>
+                  <div class="mt-see">View all →</div>
+                </div>
+                <div class="mt-row">
+                  <div class="mt-dot" style="background:var(--lime);"></div>
+                  <div class="mt-name">Invoice #INV-0047 · Café Javas</div>
+                  <div class="mt-val">+800K</div>
+                  <div class="mt-badge badge-p">Paid</div>
+                </div>
+                <div class="mt-row">
+                  <div class="mt-dot" style="background:var(--amber);"></div>
+                  <div class="mt-name">Staff Salaries · May 2026</div>
+                  <div class="mt-val">−1.2M</div>
+                  <div class="mt-badge badge-w">Pending</div>
+                </div>
+                <div class="mt-row">
+                  <div class="mt-dot" style="background:var(--lime);"></div>
+                  <div class="mt-name">Invoice #INV-0046 · Stanbic UG</div>
+                  <div class="mt-val">+1.4M</div>
+                  <div class="mt-badge badge-p">Paid</div>
+                </div>
+                <div class="mt-row">
+                  <div class="mt-dot" style="background:var(--rose);"></div>
+                  <div class="mt-name">Office Rent · May</div>
+                  <div class="mt-val">−600K</div>
+                  <div class="mt-badge badge-d">Overdue</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Gradient fade bottom -->
+      <div class="dashboard-fade"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RESULTS BAND ══════════════════════════════════════ -->
+<div class="results-band">
+  <div class="results-inner" style="max-width:1400px; margin:0 auto; border-right:none;">
+    <div class="result-item ri-cyan">
+      <div class="ri-val" style="color:var(--cyan);">60%</div>
+      <div class="ri-label">Time saved on manual reporting</div>
+    </div>
+    <div class="result-item ri-lime">
+      <div class="ri-val" style="color:var(--lime);">8</div>
+      <div class="ri-label">Core dashboard modules</div>
+    </div>
+    <div class="result-item ri-violet">
+      <div class="ri-val" style="color:var(--violet);">Android + iOS</div>
+      <div class="ri-label">Single Flutter codebase</div>
+    </div>
+    <div class="result-item ri-amber">
+      <div class="ri-val" style="color:var(--amber);">10 wks</div>
+      <div class="ri-label">From wireframe to launch</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURES ══════════════════════════════════════════ -->
+<div class="section">
+  <div class="eyebrow">Core Modules</div>
+  <h2 class="section-h2">Everything an SME<br>needs to <span>stay on top</span></h2>
+  <p class="section-desc">
+    BizTrack was built around the real daily pain points of Ugandan business owners — manual spreadsheets, scattered records, and zero visibility into what's actually happening in the business.
+  </p>
+
+  <div class="features-grid">
+
+    <div class="feat">
+      <div class="feat-icon fi-c">📊</div>
+      <div class="feat-title">Live Analytics Dashboard</div>
+      <p class="feat-desc">Real-time revenue, expense, and profit charts. Filter by day, week, month, or custom date range. Trend lines with month-over-month comparisons automatically calculated.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-icon fi-l">🧾</div>
+      <div class="feat-title">Invoice & Billing</div>
+      <p class="feat-desc">Create professional invoices in seconds, send via email or WhatsApp, and track payment status. Automated reminders for overdue invoices reduce late payments by 40%.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-icon fi-v">💳</div>
+      <div class="feat-title">Expense Tracking</div>
+      <p class="feat-desc">Log expenses by category with receipt photo uploads. Recurring expenses auto-log monthly. Visual breakdown by staff, department, or project with budget alerts.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-icon fi-a">👥</div>
+      <div class="feat-title">Staff Management</div>
+      <p class="feat-desc">Employee profiles, attendance tracking, payroll calculations, and performance records. Multi-role access — owner, manager, and staff see only what they need to.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-icon fi-r">📦</div>
+      <div class="feat-title">Inventory Management</div>
+      <p class="feat-desc">Track stock levels, set low-stock alerts, and link inventory to sales automatically. Supports barcode scanning and generates purchase order suggestions when stock runs low.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-icon fi-c">📄</div>
+      <div class="feat-title">Automated Reporting</div>
+      <p class="feat-desc">One-tap PDF and Excel reports — monthly P&L, tax summary, payroll sheet, and stock report. Share directly via email, WhatsApp, or save to Google Drive.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCREENS ═══════════════════════════════════════════ -->
+<div class="screens-section">
+  <div style="max-width:1400px; margin:0 auto;">
+    <div class="eyebrow" style="justify-content:center; margin-bottom:12px;">App Screens</div>
+    <h2 class="section-h2 display" style="text-align:center; font-size:clamp(24px,3vw,36px); margin-bottom:40px;">
+      12 screens. One <span>complete</span> business OS.
+    </h2>
+    <div class="screens-row">
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--cyan);width:60%;"></div>
+          <div class="sp-bar" style="width:80%;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:1;">
+            <div style="background:var(--cyan-dim);border-radius:4px;"></div>
+            <div style="background:var(--lime-dim);border-radius:4px;"></div>
+            <div style="background:var(--rose-dim);border-radius:4px;"></div>
+            <div style="background:var(--violet-dim);border-radius:4px;"></div>
+          </div>
+        </div>
+        <div class="sp-name">Dashboard</div>
+        <div class="sp-sub">Overview & KPIs</div>
+      </div>
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--lime);width:50%;"></div>
+          <div class="sp-block" style="background:var(--lime-dim);"></div>
+          <div class="sp-block" style="background:var(--lime-dim);height:20px;flex:none;"></div>
+          <div class="sp-block" style="background:var(--lime-dim);height:20px;flex:none;"></div>
+        </div>
+        <div class="sp-name">Invoices</div>
+        <div class="sp-sub">Create & Track</div>
+      </div>
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--rose);width:45%;"></div>
+          <div style="flex:1;display:flex;align-items:flex-end;gap:4px;">
+            <div style="flex:1;height:40%;background:var(--rose-dim);border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1;height:65%;background:var(--rose-dim);border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1;height:50%;background:var(--rose-dim);border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1;height:80%;background:var(--rose);border-radius:3px 3px 0 0;"></div>
+          </div>
+        </div>
+        <div class="sp-name">Expenses</div>
+        <div class="sp-sub">Log & Categorise</div>
+      </div>
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--violet);width:55%;"></div>
+          <div class="sp-block" style="background:var(--violet-dim);height:28px;flex:none;"></div>
+          <div class="sp-block" style="background:var(--violet-dim);height:28px;flex:none;"></div>
+          <div class="sp-block" style="background:var(--violet-dim);height:28px;flex:none;"></div>
+        </div>
+        <div class="sp-name">Staff</div>
+        <div class="sp-sub">Team & Payroll</div>
+      </div>
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--amber);width:50%;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex:1;">
+            <div style="background:var(--amber-dim);border-radius:4px;"></div>
+            <div style="background:var(--amber-dim);border-radius:4px;"></div>
+            <div style="background:var(--amber-dim);border-radius:4px;"></div>
+          </div>
+          <div class="sp-block" style="height:16px;flex:none;"></div>
+        </div>
+        <div class="sp-name">Inventory</div>
+        <div class="sp-sub">Stock & Alerts</div>
+      </div>
+
+      <div class="screen-pill">
+        <div class="sp-screen">
+          <div class="sp-bar" style="background:var(--cyan);width:65%;"></div>
+          <div class="sp-block" style="background:var(--cyan-dim);"></div>
+          <div style="display:flex;gap:4px;height:20px;">
+            <div style="flex:1;background:var(--cyan-dim);border-radius:4px;"></div>
+            <div style="flex:1;background:var(--cyan);border-radius:4px;opacity:0.5;"></div>
+          </div>
+        </div>
+        <div class="sp-name">Reports</div>
+        <div class="sp-sub">PDF & Excel export</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ TECH STACK ════════════════════════════════════════ -->
+<div class="tech-section">
+  <div>
+    <div class="eyebrow">Tech Stack</div>
+    <h2 class="section-h2" style="font-size:clamp(28px,3.5vw,42px);">
+      Built for<br><span>performance</span><br>and scale
+    </h2>
+    <p style="font-size:14px; color:var(--muted); line-height:1.75; margin-top:16px; max-width:320px;">
+      Flutter's single codebase delivers a native-quality experience on both Android and iOS. Firebase powers real-time sync so business data is always up to date across all devices.
+    </p>
+  </div>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tc-emoji">💙</div>
+      <div class="tc-name">Flutter</div>
+      <div class="tc-role">UI Framework</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">🔥</div>
+      <div class="tc-name">Firebase</div>
+      <div class="tc-role">Backend + Auth</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">📊</div>
+      <div class="tc-name">FL Chart</div>
+      <div class="tc-role">Visualisations</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">💾</div>
+      <div class="tc-name">Hive</div>
+      <div class="tc-role">Local Storage</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">📄</div>
+      <div class="tc-name">PDF Kit</div>
+      <div class="tc-role">Report Export</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">💳</div>
+      <div class="tc-name">MTN MoMo</div>
+      <div class="tc-role">Payments</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">☁️</div>
+      <div class="tc-name">Cloud Sync</div>
+      <div class="tc-role">Firestore</div>
+    </div>
+    <div class="tech-card">
+      <div class="tc-emoji">📸</div>
+      <div class="tc-name">Camera</div>
+      <div class="tc-role">Receipt Scan</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-brand">Biz<span>Track</span></div>
+  <div class="footer-meta">App Development · Flutter + Firebase · 2026</div>
+  <div class="footer-cc">A CodeCanvas Project · elijahenrique8@gmail.com</div>
+</footer>
+
+</body>
+</html>
